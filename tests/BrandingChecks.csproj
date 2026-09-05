@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../AppBranding.cs;../AppSettings.cs;../SettingsStore.cs;../NativeMethods.cs;../UiKit.cs;../BrandingForm.cs;../InstructionForm.cs;../HotkeySettingsForm.cs" LinkBase="App" />
+  </ItemGroup>
+</Project>
