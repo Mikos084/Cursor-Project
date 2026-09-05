@@ -106,6 +106,7 @@ internal sealed class HotkeyBinding
 
 internal sealed class AppSettings
 {
+    public string DisplayName { get; set; } = AppBranding.DefaultName;
     public HotkeyBinding ToggleScreens { get; set; } =
         New(true, false, true, Keys.F7);
 
@@ -164,6 +165,7 @@ internal sealed class AppSettings
     public AppSettings Clone()
         => new()
         {
+            DisplayName = DisplayName,
             ToggleScreens = ToggleScreens.Clone(),
             TogglePark = TogglePark.Clone(),
             StartStop = StartStop.Clone(),

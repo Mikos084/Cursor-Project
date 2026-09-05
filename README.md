@@ -72,3 +72,24 @@ For v0.8.3 the release workflow produces:
 ## Safety / privacy
 
 Multiple Pointers does not install a driver, inject code into other apps, capture the screen, record keystrokes, or require administrator access for the default installer.
+
+### Easter egg: własna nazwa
+
+W panelu zaznacz „Easter egg” albo wybierz „Easter egg…” z menu przy zegarze.
+Wpisz hasło `dupa`, wybierz nazwę i kliknij „Zapisz”. Ponowne otwarcie edytora
+wymaga ponownego podania hasła. „Nazwa domyślna” przywraca Multiple Pointers
+po zatwierdzeniu przyciskiem „Zapisz”; „Anuluj” nie zapisuje zmian.
+
+Nazwa jest zapisywana w `settings.json` i aktualizuje tytuł panelu, nagłówek,
+instrukcję, tytuły komunikatów oraz tooltip i menu trayu. Własne nazwy mają
+stały dopisek „— Multiple Pointers”, aby zachować jawną tożsamość aplikacji.
+Dozwolone jest 1–40 znaków (litery, cyfry, spacje, myślnik, podkreślenie).
+Nazwy sugerujące aplikacje systemowe i znaki sterujące są odrzucane również
+przy odczycie pliku. Nieprawidłowa nazwa przywraca domyślny branding.
+
+Hasło to element zabawy, a nie zabezpieczenie dostępu do pliku ustawień.
+Nie jest zapisywane w ustawieniach. Funkcja nie zmienia EXE, procesu,
+instalatora, skrótów systemowych ani mechanizmu kursora. Reset skrótów
+klawiszowych zachowuje własną nazwę. Przy błędzie zapisu nazwa pozostaje bez zmian.
+
+Testy regresji: `dotnet run --project tests/BrandingChecks.csproj -c Release`.

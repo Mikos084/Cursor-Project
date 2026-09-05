@@ -26,6 +26,7 @@ internal sealed class DashboardForm : Form
     private readonly RoundedButton _controlToggleButton = new();
     private readonly RoundedButton _resetButton = new();
 
+    private readonly Label _brandTitle = new();
     private bool _refreshing;
 
     public DashboardForm(
@@ -34,7 +35,8 @@ internal sealed class DashboardForm : Form
         Func<string> getHotkeyStatus,
         Func<HotkeyAction, string> getHotkeyText,
         Action showInstruction,
-        Action showHotkeySettings)
+        Action showHotkeySettings,
+        Action showBranding)
     {
         _controller = controller;
         _getHotkeyStatus = getHotkeyStatus;
@@ -61,11 +63,18 @@ internal sealed class DashboardForm : Form
         AutoScroll = true;
         DoubleBuffered = true;
 
-        BuildUi();
+        BuildUi(showBranding);
+        ApplyBranding();
         RefreshState();
     }
 
-    private void BuildUi()
+    public void ApplyBranding()
+    {
+        Text = AppBranding.DisplayName;
+        _brandTitle.Text = AppBranding.DisplayName;
+    }
+
+    private void BuildUi(Action showBranding)
     {
         var content = new TableLayoutPanel
         {
@@ -81,6 +90,14 @@ internal sealed class DashboardForm : Form
         content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
         AddSection(content, BuildHeader(), 76);
+        var egg = new CheckBox { Text = "Easter egg", AutoSize = true, Margin = Padding.Empty };
+        egg.CheckedChanged += (_, _) =>
+        {
+            if (!egg.Checked) return;
+            try { showBranding(); }
+            finally { egg.Checked = false; }
+        };
+        AddSection(content, egg, 34);
         AddSection(content, BuildStatusCard(), 94);
         AddSection(content, BuildScreenFlow(), 196);
         AddSection(content, BuildPrimaryAction(), 94);
@@ -130,16 +147,13 @@ internal sealed class DashboardForm : Form
         titleArea.RowStyles.Add(new RowStyle(SizeType.Absolute, 42));
         titleArea.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
-        titleArea.Controls.Add(new Label
-        {
-            Text = "Multiple Pointers",
-            Dock = DockStyle.Fill,
-            ForeColor = AppTheme.Text,
-            Font = new Font("Segoe UI Semibold", 24f),
-            TextAlign = ContentAlignment.MiddleLeft,
-            AutoEllipsis = true
-        }, 0, 0);
-
+        _brandTitle.Dock = DockStyle.Fill;
+        _brandTitle.ForeColor = AppTheme.Text;
+        _brandTitle.Font = new Font("Segoe UI Semibold", 24f);
+        _brandTitle.TextAlign = ContentAlignment.MiddleLeft;
+        _brandTitle.AutoEllipsis = true;
+        _brandTitle.UseMnemonic = false;
+        titleArea.Controls.Add(_brandTitle, 0, 0);
         titleArea.Controls.Add(new Label
         {
             Text = "v0.8.3 • stabilność monitorów • własne globalne skróty",
@@ -716,7 +730,7 @@ internal sealed class DashboardForm : Form
         {
             MessageBox.Show(
                 "Najpierw zatrzymaj prezentację. Role monitorów można zamieniać tylko wtedy, gdy sesja nie jest aktywna.",
-                "Multiple Pointers",
+                AppBranding.DisplayName,
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
             return;
@@ -957,7 +971,7 @@ internal sealed class DashboardForm : Form
         {
             MessageBox.Show(
                 error,
-                "Multiple Pointers",
+                AppBranding.DisplayName,
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
         }

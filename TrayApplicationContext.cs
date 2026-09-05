@@ -21,6 +21,8 @@ internal sealed class TrayApplicationContext : ApplicationContext
     private readonly ToolStripMenuItem _instructionsItem;
     private readonly ToolStripMenuItem _hotkeySettingsItem;
 
+    private readonly ToolStripMenuItem _exitItem;
+    private bool _brandingOpen;
     private DashboardForm? _dashboard;
     private InstructionForm? _instruction;
 
@@ -45,6 +47,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
         _appIcon = LoadAppIcon();
         _settings = SettingsStore.Load();
+        AppBranding.Name = _settings.DisplayName;
 
         var menu = new ContextMenuStrip
         {
@@ -111,17 +114,16 @@ internal sealed class TrayApplicationContext : ApplicationContext
         menu.Items.Add(_swapMonitorRolesItem);
         menu.Items.Add(_hotkeySettingsItem);
         menu.Items.Add(_instructionsItem);
+        menu.Items.Add("Easter egg…", null, (_, _) => ShowBranding());
 
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add(
-            "Zakończ Multiple Pointers",
-            null,
-            (_, _) => ExitApplication());
+        _exitItem = new ToolStripMenuItem("Zakończ " + AppBranding.DisplayName, null, (_, _) => ExitApplication());
+        menu.Items.Add(_exitItem);
 
         _trayIcon = new NotifyIcon
         {
             Icon = _appIcon,
-            Text = "Multiple Pointers",
+            Text = AppBranding.DisplayName,
             ContextMenuStrip = menu,
             Visible = true
         };
@@ -139,7 +141,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
         RefreshMenuText();
         RefreshTrayStatus();
 
-        _trayIcon.BalloonTipTitle = "Multiple Pointers v0.8.3";
+        _trayIcon.BalloonTipTitle = AppBranding.DisplayName + " v0.8.3";
         _trayIcon.BalloonTipText = startupError is null
             ? "Gotowe. Skróty globalne można teraz zmieniać w Ustawieniach skrótów."
             : startupError;
@@ -195,6 +197,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
         UnregisterAllHotkeys();
 
         AppSettings defaults = AppSettings.Defaults();
+        defaults.DisplayName = _settings.DisplayName;
 
         if (TryRegisterSettings(defaults, out string? defaultError))
         {
@@ -269,6 +272,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
     private (bool Success, string? Error) TryApplySettings(
         AppSettings candidate)
     {
+        candidate.DisplayName = _settings.DisplayName;
         AppSettings previous = _settings.Clone();
 
         UnregisterAllHotkeys();
@@ -356,7 +360,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
         if (!action(out string? error) &&
             !string.IsNullOrWhiteSpace(error))
         {
-            _trayIcon.BalloonTipTitle = "Multiple Pointers";
+            _trayIcon.BalloonTipTitle = AppBranding.DisplayName;
             _trayIcon.BalloonTipText =
                 error.Length > 250
                     ? error[..250]
@@ -385,7 +389,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
     {
         if (_controller.IsSessionActive)
         {
-            _trayIcon.BalloonTipTitle = "Multiple Pointers";
+            _trayIcon.BalloonTipTitle = AppBranding.DisplayName;
             _trayIcon.BalloonTipText =
                 "Najpierw zatrzymaj prezentację, a dopiero potem zamień role monitorów.";
             _trayIcon.ShowBalloonTip(2500);
@@ -398,7 +402,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
         if (string.IsNullOrWhiteSpace(presentation) ||
             string.IsNullOrWhiteSpace(control))
         {
-            _trayIcon.BalloonTipTitle = "Multiple Pointers";
+            _trayIcon.BalloonTipTitle = AppBranding.DisplayName;
             _trayIcon.BalloonTipText = "Najpierw wybierz oba monitory.";
             _trayIcon.ShowBalloonTip(2500);
             return;
@@ -421,7 +425,8 @@ internal sealed class TrayApplicationContext : ApplicationContext
                 () => HotkeyStatusText,
                 Shortcut,
                 ShowInstruction,
-                ShowHotkeySettings);
+                ShowHotkeySettings,
+                ShowBranding);
 
             _dashboard.FormClosed += (_, _) => _dashboard = null;
         }
@@ -452,6 +457,41 @@ internal sealed class TrayApplicationContext : ApplicationContext
         _instruction.WindowState = FormWindowState.Normal;
         _instruction.BringToFront();
         _instruction.Activate();
+    }
+
+    private void ShowBranding()
+    {
+        if (_brandingOpen) return;
+        _brandingOpen = true;
+        try
+        {
+            using var form = new BrandingForm(_appIcon, _settings.DisplayName, TryApplyBranding);
+            if (_dashboard is not null && !_dashboard.IsDisposed && _dashboard.Visible)
+                form.ShowDialog(_dashboard);
+            else
+                form.ShowDialog();
+        }
+        finally { _brandingOpen = false; }
+    }
+
+    private (bool Success, string? Error) TryApplyBranding(string input)
+    {
+        if (!AppBranding.TryValidate(input, out var name, out var error))
+            return (false, error);
+        var candidate = _settings.Clone();
+        candidate.DisplayName = name;
+        if (!SettingsStore.Save(candidate, out error))
+            return (false, error);
+        _settings = candidate;
+        AppBranding.Name = name;
+        _trayIcon.Text = AppBranding.DisplayName;
+        _trayIcon.BalloonTipTitle = AppBranding.DisplayName;
+        _exitItem.Text = "Zakończ " + AppBranding.DisplayName;
+        _dashboard?.ApplyBranding();
+        _instruction?.ApplyBranding();
+        foreach (var editor in Application.OpenForms.OfType<HotkeySettingsForm>())
+            editor.Text = "Skróty globalne — " + AppBranding.DisplayName;
+        return (true, null);
     }
 
     private void ShowHotkeySettings()
@@ -488,6 +528,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
                 UnregisterAllHotkeys();
 
                 AppSettings fallback = AppSettings.Defaults();
+                fallback.DisplayName = _settings.DisplayName;
 
                 if (TryRegisterSettings(fallback, out _))
                 {
@@ -495,7 +536,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
                     SettingsStore.Save(_settings, out _);
                 }
 
-                _trayIcon.BalloonTipTitle = "Multiple Pointers";
+                _trayIcon.BalloonTipTitle = AppBranding.DisplayName;
                 _trayIcon.BalloonTipText =
                     restoreError is null
                         ? "Poprzedni skrót stał się niedostępny. Przywrócono bezpieczny zestaw domyślny."
@@ -584,7 +625,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
                 RefreshTrayStatus();
                 _dashboard?.RefreshState();
 
-                _trayIcon.BalloonTipTitle = "Multiple Pointers";
+                _trayIcon.BalloonTipTitle = AppBranding.DisplayName;
                 _trayIcon.BalloonTipText =
                     "Wykryto zmianę układu monitorów. Konfiguracja została odświeżona.";
                 _trayIcon.ShowBalloonTip(2200);

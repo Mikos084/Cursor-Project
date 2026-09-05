@@ -16,7 +16,7 @@ internal sealed class HotkeySettingsForm : Form
         _working = current.Clone();
         _apply = apply;
 
-        Text = "Skróty globalne — Multiple Pointers";
+        Text = "Skróty globalne — " + AppBranding.DisplayName;
         Icon = icon;
         Width = 900;
         Height = 690;
@@ -126,7 +126,9 @@ internal sealed class HotkeySettingsForm : Form
         defaults.Width = 170;
         defaults.Click += (_, _) =>
         {
+            string displayName = _working.DisplayName;
             _working = AppSettings.Defaults();
+            _working.DisplayName = displayName;
             LoadRows();
             SetMessage(
                 "Domyślne kombinacje zostały wczytane do edytora. Kliknij „Zapisz zmiany”, aby je zastosować.",

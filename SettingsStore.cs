@@ -72,7 +72,11 @@ internal static class SettingsStore
                 return null;
 
             string json = File.ReadAllText(path, Encoding.UTF8);
-            return JsonSerializer.Deserialize<AppSettings>(json, JsonOptions);
+            var settings = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions);
+            if (settings is not null)
+                settings.DisplayName = AppBranding.TryValidate(settings.DisplayName, out var name, out _)
+                    ? name : AppBranding.DefaultName;
+            return settings;
         }
         catch
         {

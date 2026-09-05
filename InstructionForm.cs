@@ -2,6 +2,14 @@ namespace MultiplePointers;
 
 internal sealed class InstructionForm : Form
 {
+    private RichTextBox _body = null!;
+    private string _bodyTemplate = "";
+    public void ApplyBranding()
+    {
+        Text = "Jak używać — " + AppBranding.DisplayName;
+        _body.Text = _bodyTemplate.Replace(AppBranding.DefaultName, AppBranding.DisplayName);
+    }
+
     private static readonly Color Bg = Color.FromArgb(18, 20, 25);
     private static readonly Color Card = Color.FromArgb(29, 32, 39);
     private static readonly Color TextMain = Color.FromArgb(246, 247, 250);
@@ -26,6 +34,7 @@ internal sealed class InstructionForm : Form
         DoubleBuffered = true;
 
         BuildUi(shortcut);
+        ApplyBranding();
     }
 
     private void BuildUi(Func<HotkeyAction, string> shortcut)
@@ -167,6 +176,8 @@ Display Capture
 → ekran udostępniany
 → Show Cursor = OFF.";
 
+        _body = box;
+        _bodyTemplate = box.Text;
         root.Controls.Add(box, 0, 1);
 
         var close = new Button

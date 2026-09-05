@@ -16,9 +16,10 @@ internal static class Program
 
         if (!createdNew)
         {
+            string displayName = AppBranding.Format(SettingsStore.Load().DisplayName);
             MessageBox.Show(
-                "Multiple Pointers jest już uruchomiony. Sprawdź ikonę programu przy zegarze Windows.",
-                "Multiple Pointers",
+                $"{displayName} jest już uruchomiony. Sprawdź ikonę programu przy zegarze Windows.",
+                displayName,
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
             return;

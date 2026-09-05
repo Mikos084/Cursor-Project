@@ -26,6 +26,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="tests/**/*.cs" />
     <Content Include="app.ico" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
