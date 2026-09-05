@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 8.0.x
+      - name: Publish self-contained win-x64
+        run: dotnet publish MultiplePointers.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -p:PublishTrimmed=false -o dist/MultiplePointers
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MultiplePointers-ci-win-x64
+          path: dist/MultiplePointers
+          if-no-files-found: error
+          retention-days: 7
