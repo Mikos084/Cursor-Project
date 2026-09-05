@@ -11,15 +11,38 @@ permissions:
 
 jobs:
   build:
+    name: Windows build
     runs-on: windows-2025
+
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-dotnet@v6
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 8.0.x
-      - name: Publish self-contained win-x64
-        run: dotnet publish MultiplePointers.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -p:PublishTrimmed=false -o dist/MultiplePointers
-      - uses: actions/upload-artifact@v4
+          dotnet-quality: ga
+
+      - name: Restore
+        run: dotnet restore MultiplePointers.csproj
+
+      - name: Build
+        run: dotnet build MultiplePointers.csproj -c Release --no-restore
+
+      - name: Publish self-contained x64 smoke build
+        run: >-
+          dotnet publish MultiplePointers.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          -p:PublishSingleFile=false
+          -p:PublishTrimmed=false
+          -p:DebugType=None
+          -o dist/MultiplePointers
+
+      - name: Upload CI publish output
+        uses: actions/upload-artifact@v4
         with:
           name: MultiplePointers-ci-win-x64
           path: dist/MultiplePointers

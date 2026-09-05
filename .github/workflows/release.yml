@@ -1,0 +1,193 @@
+name: Build and publish release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - RELEASE_VERSION
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: multiple-pointers-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build Portable + Setup and publish GitHub Release
+    runs-on: windows-2025
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 8.0.x
+          dotnet-quality: ga
+
+      - name: Read and validate release version
+        id: version
+        shell: pwsh
+        run: |
+          $version = (Get-Content RELEASE_VERSION -Raw).Trim()
+          if ($version -notmatch '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$') {
+            throw "Invalid RELEASE_VERSION: $version"
+          }
+          foreach ($part in $version.Split('.')) {
+            if ([long]$part -gt 65535) { throw 'Version components must be <= 65535.' }
+          }
+
+          [xml]$project = Get-Content MultiplePointers.csproj
+          $projectVersion = [string]$project.Project.PropertyGroup.Version
+          if ($projectVersion -ne $version) {
+            throw "RELEASE_VERSION ($version) does not match csproj Version ($projectVersion)."
+          }
+
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=v$version" >> $env:GITHUB_OUTPUT
+
+      - name: Restore
+        run: dotnet restore MultiplePointers.csproj
+
+      - name: Build
+        run: dotnet build MultiplePointers.csproj -c Release --no-restore
+
+      - name: Publish self-contained Windows x64
+        shell: pwsh
+        run: |
+          $portableDir = Join-Path $PWD 'release\portable\MultiplePointers'
+          New-Item -ItemType Directory -Force -Path $portableDir | Out-Null
+
+          dotnet publish MultiplePointers.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=false `
+            -p:PublishTrimmed=false `
+            -p:DebugType=None `
+            -o $portableDir
+
+          if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed: $LASTEXITCODE" }
+          foreach ($file in @('MultiplePointers.exe', 'coreclr.dll', 'hostfxr.dll', 'System.Windows.Forms.dll')) {
+            if (-not (Test-Path (Join-Path $portableDir $file))) {
+              throw "Incomplete self-contained output: $file"
+            }
+          }
+
+          Copy-Item INSTRUKCJA_PL.txt $portableDir -Force
+          Copy-Item README.md $portableDir -Force
+
+      - name: Create Portable ZIP
+        shell: pwsh
+        run: |
+          $version = '${{ steps.version.outputs.version }}'
+          $zip = Join-Path $PWD "release\MultiplePointers_Portable_v$version.zip"
+          if (Test-Path $zip) { Remove-Item $zip -Force }
+          Compress-Archive `
+            -Path (Join-Path $PWD 'release\portable\MultiplePointers\*') `
+            -DestinationPath $zip `
+            -CompressionLevel Optimal
+
+      - name: Build Setup EXE with Inno Setup
+        shell: pwsh
+        run: |
+          $candidates = @(
+            "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
+            "${env:ProgramFiles}\Inno Setup 6\ISCC.exe",
+            "${env:ProgramFiles(x86)}\Inno Setup 7\ISCC.exe",
+            "${env:ProgramFiles}\Inno Setup 7\ISCC.exe"
+          )
+
+          $iscc = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $iscc) {
+            $cmd = Get-Command ISCC.exe -ErrorAction SilentlyContinue
+            if ($cmd) { $iscc = $cmd.Source }
+          }
+
+          if (-not $iscc) {
+            throw 'Inno Setup compiler (ISCC.exe) was not found on the runner.'
+          }
+
+          $version = (Get-Content RELEASE_VERSION -Raw).Trim()
+          & $iscc "/DMyAppVersion=$version" "/DMyAppFileVersion=$version.0" installer.iss
+          if ($LASTEXITCODE -ne 0) {
+            throw "Inno Setup failed with exit code $LASTEXITCODE"
+          }
+
+      - name: Verify release assets
+        shell: pwsh
+        run: |
+          $version = '${{ steps.version.outputs.version }}'
+          $portable = "release\MultiplePointers_Portable_v$version.zip"
+          $setup = "release\MultiplePointers_Setup_v$version.exe"
+
+          foreach ($asset in @($portable, $setup)) {
+            if (-not (Test-Path $asset)) { throw "Missing asset: $asset" }
+            $size = (Get-Item $asset).Length
+            if ($size -lt 100000) { throw "Asset looks unexpectedly small: $asset ($size bytes)" }
+          }
+
+      - name: Generate SHA256 checksums
+        shell: pwsh
+        run: |
+          $version = '${{ steps.version.outputs.version }}'
+          $assets = @(
+            "release\MultiplePointers_Portable_v$version.zip",
+            "release\MultiplePointers_Setup_v$version.exe"
+          )
+
+          $lines = foreach ($asset in $assets) {
+            $hash = (Get-FileHash $asset -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $([IO.Path]::GetFileName($asset))"
+          }
+
+          $lines | Set-Content -Encoding ascii "release\SHA256SUMS.txt"
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MultiplePointers-v${{ steps.version.outputs.version }}
+          path: |
+            release/MultiplePointers_Portable_v${{ steps.version.outputs.version }}.zip
+            release/MultiplePointers_Setup_v${{ steps.version.outputs.version }}.exe
+            release/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = '${{ steps.version.outputs.version }}'
+          $tag = '${{ steps.version.outputs.tag }}'
+          $portable = "release\MultiplePointers_Portable_v$version.zip"
+          $setup = "release\MultiplePointers_Setup_v$version.exe"
+          $sums = "release\SHA256SUMS.txt"
+
+          if (gh release view $tag --repo "${{ github.repository }}" 2>$null) {
+            throw "Release $tag already exists. Bump RELEASE_VERSION before publishing another release."
+          }
+
+          gh release create $tag `
+            $portable `
+            $setup `
+            $sums `
+            --repo "${{ github.repository }}" `
+            --target "${{ github.sha }}" `
+            --title "Multiple Pointers $tag" `
+            --notes-file RELEASE_NOTES.md `
+            --draft
+          if ($LASTEXITCODE -ne 0) { throw "Creating release draft failed: $LASTEXITCODE" }
+
+          # All assets have been uploaded successfully before making the release public.
+          gh release edit $tag --repo "${{ github.repository }}" --draft=false --latest
+          if ($LASTEXITCODE -ne 0) { throw "Publishing release failed: $LASTEXITCODE" }
