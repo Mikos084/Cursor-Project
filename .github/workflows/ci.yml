@@ -30,6 +30,9 @@ jobs:
       - name: Build
         run: dotnet build MultiplePointers.csproj -c Release --no-restore
 
+      - name: Branding regression checks
+        run: dotnet run --project tests/BrandingChecks.csproj -c Release
+
       - name: Publish self-contained x64 smoke build
         run: >-
           dotnet publish MultiplePointers.csproj
