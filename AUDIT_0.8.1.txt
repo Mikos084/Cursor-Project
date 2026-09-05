@@ -1,0 +1,23 @@
+MULTIPLE POINTERS v0.8.1 — AUDYT HOTFIXU
+
+Naprawiono:
+- realne pole przechwytywania własnych skrótów,
+- wyrejestrowanie starych globalnych hotkeyów na czas edycji,
+- przywracanie poprzedniego zestawu po Anuluj,
+- walidację i rejestrację całego zestawu przed zapisem,
+- obsługę zwykłych KeyDown i ProcessCmdKey,
+- responsywny dashboard bez głównych elementów pozycjonowanych absolutnym X/Y,
+- AutoScroll formularza,
+- DPI scaling,
+- zaokrąglone panele i przyciski,
+- dynamiczne etykiety skrótów w trayu,
+- konfigurację hotkeyów dla 9 głównych akcji.
+
+Kontrola rdzenia kursora:
+SHA256 poprzedniego PointerController.cs: eb013282888e6ab3d0949309b781b5025b2a3c222cbd157e73635a385234dd60
+SHA256 obecnego PointerController.cs:    eb013282888e6ab3d0949309b781b5025b2a3c222cbd157e73635a385234dd60
+Rdzeń kursora NIE został zmieniony.
+
+Ograniczenie testu:
+W bieżącym środowisku nie ma Windows/.NET SDK, więc nie wykonano finalnego runtime build/test.
+Wykonano kontrolę strukturalną i spójności kodu źródłowego.

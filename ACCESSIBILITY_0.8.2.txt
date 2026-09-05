@@ -1,0 +1,40 @@
+MULTIPLE POINTERS v0.8.2 — CURSOR HANDOFF ACCESSIBILITY HOTFIX
+
+CEL
+Ograniczyć krótkie mignięcie / zniknięcie wskaźnika przy przełączaniu monitorów.
+
+ZMIANA 1 — PRYWATNY -> PREZENTACJA
+Stara kolejność:
+fake cursor OFF -> SetCursorPos -> real cursor ON target.
+
+Nowa kolejność:
+fake cursor stays visible
+-> SetCursorPos moves real cursor exactly underneath it
+-> target monitor is verified
+-> ClipCursor is applied
+-> fake cursor is removed.
+
+W efekcie nie ma celowo tworzonego momentu, w którym w zapamiętanym punkcie
+nie istnieje ani sztuczny, ani prawdziwy kursor.
+
+ZMIANA 2 — PREZENTACJA -> PRYWATNY
+FakeCursorForm wymusza natychmiastowy Update() po pokazaniu nieruchomej strzałki.
+Dopiero po powrocie z ParkArrowAt() kontroler przenosi prawdziwy kursor.
+
+ZMIANA 3 — ATOMOWA PODMIANA IKONY
+Nowy uchwyt normalnej strzałki jest tworzony najpierw.
+Dopiero potem zastępuje poprzedni uchwyt.
+Stary uchwyt jest niszczony po namalowaniu nowej strzałki.
+
+NIE DODANO:
+- animacji,
+- fade-in/fade-out,
+- pulsowania,
+- migających statusów,
+- efektów przejścia.
+
+UWAGA TESTOWA
+W tym środowisku nie można uruchomić Windowsowego builda aplikacji.
+Kod eliminuje znany pusty etap handoffu, ale nie jest to medyczna certyfikacja
+bezpieczeństwa dla osób z padaczką fotowrażliwą. Przed szeroką dystrybucją
+warto zweryfikować przełączenia na docelowym Windowsie i nagrać je w wysokim FPS.

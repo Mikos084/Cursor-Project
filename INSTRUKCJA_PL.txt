@@ -1,0 +1,97 @@
+MULTIPLE POINTERS v0.8.3
+
+SZYBKI START
+
+1. Wybierz ekran udostępniany.
+2. Wybierz ekran prywatny.
+3. Ustaw kursor na prezentacji.
+4. Uruchom tryb prezentacji przypisanym skrótem Start / Stop.
+
+Program pamięta niezależną pozycję kursora na obu monitorach.
+
+
+JAK USTAWIĆ WŁASNY SKRÓT
+
+1. Otwórz główny panel.
+2. Kliknij „Ustaw skróty”.
+
+Możesz też:
+prawy klik na ikonie Multiple Pointers przy zegarze
+→ „Ustawienia skrótów...”
+
+3. Znajdź funkcję, którą chcesz zmienić.
+4. Kliknij duże pole:
+   „Kliknij i naciśnij skrót”
+5. Pole zmieni tekst na:
+   „Naciśnij kombinację…”
+6. Naciśnij własny skrót, np.:
+   Ctrl + Alt + Q
+   Shift + F6
+   Ctrl + Shift + 1
+   F12
+7. Kliknij „Zapisz zmiany”.
+
+Nie wpisujesz nazw klawiszy ręcznie.
+Program nagrywa kombinację, którą faktycznie naciskasz.
+
+
+CO SIĘ DZIEJE PODCZAS EDYCJI?
+
+Na czas otwarcia edytora dotychczasowe skróty Multiple Pointers
+są tymczasowo wyłączane.
+
+Dzięki temu stary globalny hotkey nie przechwytuje kombinacji,
+którą próbujesz ustawić jako nową.
+
+„Zapisz zmiany”:
+- sprawdza cały nowy zestaw,
+- próbuje zarejestrować go globalnie w Windows,
+- zapisuje go tylko wtedy, gdy jest poprawny.
+
+„Anuluj”:
+- przywraca poprzedni zestaw skrótów.
+
+Jeżeli skrót jest zajęty przez Windows albo inną aplikację,
+program nie zostawia częściowo zmienionej konfiguracji.
+
+
+FUNKCJE, KTÓRYM MOŻESZ PRZYPISAĆ SKRÓT
+
+- Przełącz prezentacja ↔ prywatny
+- Parkuj / usuń strzałkę
+- Start / stop prezentacji
+- Reset / odblokuj
+- Otwórz panel
+- Odśwież monitory
+- Zamień role monitorów
+- Otwórz instrukcję
+- Otwórz ustawienia skrótów
+
+Każdy skrót można również wyłączyć.
+
+
+DOMYŚLNE SKRÓTY
+
+Ctrl + Shift + F7  — przełącz ekrany
+Ctrl + Shift + F8  — parkowanie strzałki
+Ctrl + Shift + F9  — start / stop prezentacji
+Ctrl + Shift + F10 — reset
+Ctrl + Shift + F11 — otwórz panel
+
+Pozostałe dodatkowe akcje są domyślnie bez skrótu.
+
+
+UI
+
+Główne okno:
+- skaluje się z rozmiarem formularza,
+- można maksymalizować,
+- na mniejszym ekranie ma pionowy scroll,
+- używa zaokrąglonych kart i przycisków,
+- nie opiera głównych elementów na sztywnych współrzędnych X/Y.
+
+
+AWARYJNIE
+
+Jeżeli kursor zostanie zablokowany w niechcianym miejscu,
+użyj funkcji Reset / odblokuj przyciskiem w panelu albo jej aktualnym skrótem.

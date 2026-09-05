@@ -1,0 +1,65 @@
+MULTIPLE POINTERS — KTÓRĄ WERSJĘ WYBRAĆ?
+
+Masz dwie wersje programu.
+
+============================================================
+1. MultiplePointers_Setup.exe
+   WYBIERZ TO, JEŻELI CHCESZ NORMALNIE ZAINSTALOWAĆ PROGRAM.
+============================================================
+
+Co robisz:
+1. Pobierz plik Setup.exe.
+2. Kliknij go dwa razy.
+3. Przejdź przez prosty kreator instalacji.
+4. Opcjonalnie zaznacz skrót na pulpicie.
+5. Kliknij Zainstaluj.
+6. Gotowe.
+
+Program pojawi się w Menu Start i będzie można go normalnie odinstalować
+z Ustawień Windows.
+
+Nie musisz instalować .NET.
+Nie musisz instalować .NET SDK.
+Nie musisz niczego kompilować.
+
+
+============================================================
+2. MultiplePointers_Portable.zip
+   WYBIERZ TO, JEŻELI NIE CHCESZ NICZEGO INSTALOWAĆ.
+============================================================
+
+Co robisz:
+1. Pobierz ZIP.
+2. Kliknij prawym → Wyodrębnij wszystko.
+3. Otwórz wypakowany folder.
+4. Uruchom MultiplePointers.exe.
+5. Gotowe.
+
+Nie przenoś samego EXE bez pozostałych plików z folderu portable.
+Najlepiej zostawić cały wypakowany folder razem.
+
+Nie musisz instalować .NET.
+Nie musisz instalować .NET SDK.
+
+
+============================================================
+CO POLECAM?
+============================================================
+
+Dla zwykłego użytkownika:
+→ Setup.exe
+
+Jeżeli chcesz program np. na pendrive albo bez instalowania:
+→ Portable.zip
+
+
+============================================================
+WINDOWS SMARTSCREEN
+============================================================
+
+Jeżeli program nie ma jeszcze podpisu cyfrowego i reputacji,
+Windows może pokazać ostrzeżenie o nierozpoznanej aplikacji.
+
+Nie oznacza to automatycznie, że plik jest wirusem.
+Dla publicznego stable release zalecane jest podpisanie instalatora
+i programu certyfikatem code-signing.

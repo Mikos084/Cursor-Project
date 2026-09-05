@@ -1,0 +1,11 @@
+bin/
+obj/
+release/
+dist/
+*.user
+*.suo
+*.tmp
+settings.json
+settings.json.bak
+settings.json.tmp
+.vs/

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <AssemblyName>MultiplePointers</AssemblyName>
+    <RootNamespace>MultiplePointers</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+
+    <Product>Multiple Pointers</Product>
+    <Description>Tray utility for parking a visual cursor on one display while controlling another display.</Description>
+    <Company>Multiple Pointers</Company>
+    <Authors>Multiple Pointers</Authors>
+    <Copyright>Copyright © 2026</Copyright>
+    <Version>0.8.3</Version>
+    <FileVersion>0.8.3.0</FileVersion>
+    <AssemblyVersion>0.8.3.0</AssemblyVersion>
+
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="app.ico" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

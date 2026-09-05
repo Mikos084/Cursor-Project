@@ -1,0 +1,28 @@
+MULTIPLE POINTERS v0.8.3 — RELIABILITY AUDIT
+
+Changes applied after reviewing v0.8.2 source:
+
+1. Multiple simultaneous instances
+   Fixed with a named per-user Mutex.
+
+2. Cursor confinement surviving abnormal paths
+   Added ClipCursor(NULL) cleanup in Program finally block and exception handlers.
+
+3. Monitor disconnect / topology change during an active session
+   Added Windows DisplaySettingsChanged handling. If a selected monitor disappears, the active session resets before monitor auto-selection.
+
+4. Changing monitor roles while a session is active
+   Presentation/private ComboBoxes are disabled until the session stops or resets.
+
+5. Settings persistence
+   settings.json is written to a temporary file and atomically replaced when possible; a .bak file is retained and used as a recovery source if the primary JSON is damaged.
+
+6. Installer cleanup
+   Removed [UninstallDelete] filesandordirs {app}. That rule could recursively delete a non-empty custom directory selected by a user. Inno Setup now removes only files/directories it owns normally.
+
+7. CI/release
+   Added Windows 2025 GitHub Actions workflows for compile/publish validation and automatic release packaging.
+
+Known validation limitation in this ChatGPT environment:
+- .NET SDK is not installed locally, so the final compile must be performed by the Windows GitHub Actions runner.
+- GitHub Actions runner configuration is intentionally part of this release so compilation failure prevents release publication.

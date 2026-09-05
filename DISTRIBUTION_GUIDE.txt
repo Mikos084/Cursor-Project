@@ -1,0 +1,51 @@
+MULTIPLE POINTERS — JAK WYDAĆ PROGRAM INNYM OSOBOM
+
+TYLKO OSOBA TWORZĄCA RELEASE:
+1. Ma zainstalowane .NET 8 SDK.
+2. Jeśli chce Setup.exe — ma też Inno Setup 7.
+3. Uruchamia BUILD_RELEASE.bat.
+
+Po zakończeniu otwiera się folder:
+release
+
+Interesują Cię TYLKO dwa pliki:
+
+MultiplePointers_Setup_v0.8.3.exe
+MultiplePointers_Portable_v0.8.3.zip
+
+To właśnie te dwa pliki możesz wysłać innym osobom.
+
+
+ODBIORCA NIE POTRZEBUJE:
+- Visual Studio,
+- .NET SDK,
+- .NET Runtime,
+- Inno Setup,
+- build.bat,
+- kodu źródłowego.
+
+
+WERSJA INSTALOWANA:
+Setup.exe
+- instaluje do profilu bieżącego użytkownika,
+- nie powinna wymagać uprawnień administratora,
+- tworzy wpis w Menu Start,
+- może utworzyć skrót na pulpicie,
+- dodaje normalny uninstaller.
+
+
+WERSJA PORTABLE:
+Portable.zip
+- wypakować,
+- uruchomić MultiplePointers.exe,
+- żadnego instalatora.
+
+
+UWAGA:
+Nie wysyłaj ludziom folderów:
+bin
+obj
+release\portable
+
+Jeżeli dystrybuujesz program publicznie, wysyłaj gotowy Setup.exe
+lub gotowy Portable.zip.
