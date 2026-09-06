@@ -81,8 +81,8 @@ wymaga ponownego podania hasła. „Nazwa domyślna” przywraca Multiple Pointe
 po zatwierdzeniu przyciskiem „Zapisz”; „Anuluj” nie zapisuje zmian.
 
 Nazwa jest zapisywana w `settings.json` i aktualizuje tytuł panelu, nagłówek,
-instrukcję, tytuły komunikatów oraz tooltip i menu trayu. Własne nazwy mają
-stały dopisek „— Multiple Pointers”, aby zachować jawną tożsamość aplikacji.
+instrukcję, tytuły komunikatów oraz tooltip i menu trayu. Własna nazwa
+zastępuje dotychczasową nazwę bez dopisku „Multiple Pointers”.
 Dozwolone jest 1–40 znaków (litery, cyfry, spacje, myślnik, podkreślenie).
 Nazwy sugerujące aplikacje systemowe i znaki sterujące są odrzucane również
 przy odczycie pliku. Nieprawidłowa nazwa przywraca domyślny branding.

@@ -11,7 +11,7 @@ internal static class AppBranding
     public static string DisplayName => Format(Name);
 
     public static string Format(string name)
-        => name == DefaultName ? DefaultName : $"{name} — {DefaultName}";
+        => name;
 
     public static bool TryValidate(string? input, out string name, out string? error)
     {

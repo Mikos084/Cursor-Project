@@ -141,7 +141,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
         RefreshMenuText();
         RefreshTrayStatus();
 
-        _trayIcon.BalloonTipTitle = AppBranding.DisplayName + " v0.8.3";
+        _trayIcon.BalloonTipTitle = AppBranding.DisplayName + " 0.8.3 Beta 1";
         _trayIcon.BalloonTipText = startupError is null
             ? "Gotowe. Skróty globalne można teraz zmieniać w Ustawieniach skrótów."
             : startupError;

@@ -69,7 +69,7 @@ internal sealed class InstructionForm : Form
 
         header.Controls.Add(new Label
         {
-            Text = "v0.8.3 • kliknij „Ustaw skróty”, a potem pole kombinacji i naciśnij własne klawisze.",
+            Text = "0.8.3 Beta 1 • kliknij „Ustaw skróty”, a potem pole kombinacji i naciśnij własne klawisze.",
             ForeColor = TextMuted,
             AutoSize = true,
             Location = new Point(3, 48)

@@ -7,8 +7,9 @@ internal sealed class BrandingForm : Form
     {
         Text = "Easter egg — " + AppBranding.DisplayName;
         Icon = icon;
-        ClientSize = new Size(540, 330);
-        FormBorderStyle = FormBorderStyle.FixedDialog;
+        ClientSize = new Size(620, 470);
+        MinimumSize = new Size(580, 470);
+        FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = false;
         MinimizeBox = false;
         ShowInTaskbar = false;
@@ -18,27 +19,43 @@ internal sealed class BrandingForm : Form
         BackColor = AppTheme.Background;
         ForeColor = AppTheme.Text;
 
-        var layout = new FlowLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(20),
-            FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true };
+        AutoScroll = true;
+        var layout = new TableLayoutPanel { Dock = DockStyle.Top, Padding = new Padding(28),
+            ColumnCount = 1, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink };
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         var hint = new Label { Text = "Podaj hasło, aby odblokować własną nazwę aplikacji.", AutoSize = true };
         var password = new TextBox { Width = 480, UseSystemPasswordChar = true, AccessibleName = "Hasło" };
         var unlock = new Button { Text = "Odblokuj", AutoSize = true };
         var name = new TextBox { Text = currentName, Width = 480, MaxLength = AppBranding.MaxNameLength,
             Enabled = false, AccessibleName = "Wyświetlana nazwa aplikacji" };
-        var info = new Label { Text = "Własna nazwa otrzyma dopisek „— Multiple Pointers”.", AutoSize = true };
-        var message = new Label { Width = 480, Height = 45, ForeColor = AppTheme.Muted };
-        var buttons = new FlowLayoutPanel { Width = 480, Height = 40 };
+        var info = new Label { Text = "Własna nazwa zastąpi dotychczasową nazwę w oknie i trayu.", AutoSize = true };
+        var message = new Label { AutoSize = true, MinimumSize = new Size(0, 48), ForeColor = AppTheme.Muted };
+        var buttons = new FlowLayoutPanel { AutoSize = true, WrapContents = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink, Margin = Padding.Empty };
         var apply = new Button { Text = "Zapisz", Enabled = false, AutoSize = true };
         var reset = new Button { Text = "Nazwa domyślna", Enabled = false, AutoSize = true };
         var cancel = new Button { Text = "Anuluj", DialogResult = DialogResult.Cancel, AutoSize = true };
         buttons.Controls.AddRange([apply, reset, cancel]);
-        layout.Controls.AddRange([hint, password, unlock, name, info, message, buttons]);
+        foreach (var control in new Control[] { hint, password, unlock,
+                     new Label { Text = "Wyświetlana nazwa", AutoSize = true }, name, info, message, buttons })
+        {
+            int row = layout.RowCount++;
+            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            control.Dock = DockStyle.Top;
+            control.Margin = new Padding(0, 0, 0, 12);
+            layout.Controls.Add(control, 0, row);
+        }
+        unlock.Dock = DockStyle.None;
+        unlock.Anchor = AnchorStyles.Left;
         Controls.Add(layout);
         foreach (var button in new[] { unlock, apply, reset, cancel })
         {
             button.BackColor = AppTheme.SurfaceAlt;
             button.ForeColor = AppTheme.Text;
             button.UseVisualStyleBackColor = false;
+            button.MinimumSize = new Size(button == reset ? 170 : 125, 44);
+            button.Padding = new Padding(12, 6, 12, 6);
+            button.Margin = new Padding(0, 0, 12, 10);
         }
         foreach (var input in new[] { password, name })
         {

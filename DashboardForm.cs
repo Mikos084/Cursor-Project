@@ -89,7 +89,7 @@ internal sealed class DashboardForm : Form
 
         content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
-        AddSection(content, BuildHeader(), 76);
+        AddSection(content, BuildHeader(), 146);
         var egg = new CheckBox { Text = "Easter egg", AutoSize = true, Margin = Padding.Empty };
         egg.CheckedChanged += (_, _) =>
         {
@@ -127,14 +127,15 @@ internal sealed class DashboardForm : Form
         var panel = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 2,
-            RowCount = 1,
+            ColumnCount = 1,
+            RowCount = 2,
             BackColor = AppTheme.Background,
             Margin = Padding.Empty
         };
 
         panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        panel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 76));
+        panel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
         var titleArea = new TableLayoutPanel
         {
@@ -156,7 +157,7 @@ internal sealed class DashboardForm : Form
         titleArea.Controls.Add(_brandTitle, 0, 0);
         titleArea.Controls.Add(new Label
         {
-            Text = "v0.8.3 • stabilność monitorów • własne globalne skróty",
+            Text = "0.8.3 Beta 1 • własna nazwa • globalne skróty",
             Dock = DockStyle.Fill,
             ForeColor = AppTheme.Muted,
             Font = new Font("Segoe UI", 9.6f),
@@ -169,22 +170,22 @@ internal sealed class DashboardForm : Form
             AutoSize = true,
             Dock = DockStyle.Fill,
             FlowDirection = FlowDirection.LeftToRight,
-            WrapContents = false,
+            WrapContents = true,
             BackColor = AppTheme.Background,
-            Padding = new Padding(8, 8, 0, 0)
+            Padding = Padding.Empty
         };
 
-        var hotkeys = SecondaryButton("Ustaw skróty", 128);
+        var hotkeys = SecondaryButton("Ustaw skróty", 164);
         hotkeys.Click += (_, _) => _showHotkeySettings();
 
-        var refresh = SecondaryButton("Odśwież", 104);
+        var refresh = SecondaryButton("Odśwież", 140);
         refresh.Click += (_, _) =>
         {
             _controller.RefreshMonitors();
             RefreshState();
         };
 
-        var help = SecondaryButton("Instrukcja", 104);
+        var help = SecondaryButton("Instrukcja", 140);
         help.Click += (_, _) => _showInstruction();
 
         actions.Controls.Add(hotkeys);
@@ -192,7 +193,7 @@ internal sealed class DashboardForm : Form
         actions.Controls.Add(help);
 
         panel.Controls.Add(titleArea, 0, 0);
-        panel.Controls.Add(actions, 1, 0);
+        panel.Controls.Add(actions, 0, 1);
 
         return panel;
     }
