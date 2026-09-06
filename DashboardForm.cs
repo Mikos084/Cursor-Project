@@ -98,12 +98,27 @@ internal sealed class DashboardForm : Form
             finally { egg.Checked = false; }
         };
         AddSection(content, egg, 34);
-        AddSection(content, BuildStatusCard(), 94);
+        AddSection(content, BuildStatusCard(), 108);
         AddSection(content, BuildScreenFlow(), 196);
-        AddSection(content, BuildPrimaryAction(), 94);
-        AddSection(content, BuildControlToggle(), 100);
-        AddSection(content, BuildLiveState(), 132);
-        AddSection(content, BuildBottomInfo(), 218);
+        AddSection(content, BuildPrimaryAction(), 156);
+        AddSection(content, BuildControlToggle(), 146);
+        var detailsToggle = new CheckBox
+        {
+            Text = "Pokaż szczegóły monitorów i skrótów",
+            AutoSize = true, ForeColor = AppTheme.Muted
+        };
+        AddSection(content, detailsToggle, 44);
+        var details = new TableLayoutPanel
+        {
+            Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, Visible = false
+        };
+        details.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        AddSection(details, BuildLiveState(), 220);
+        AddSection(details, BuildBottomInfo(), 270);
+        int detailsRow = content.RowCount++;
+        content.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        content.Controls.Add(details, 0, detailsRow);
+        detailsToggle.CheckedChanged += (_, _) => details.Visible = detailsToggle.Checked;
 
         Controls.Add(content);
     }
@@ -157,7 +172,7 @@ internal sealed class DashboardForm : Form
         titleArea.Controls.Add(_brandTitle, 0, 0);
         titleArea.Controls.Add(new Label
         {
-            Text = "0.8.3 Beta 1 • własna nazwa • globalne skróty",
+            Text = "0.8.3 Beta 2 • prezentacja i prywatna przestrzeń",
             Dock = DockStyle.Fill,
             ForeColor = AppTheme.Muted,
             Font = new Font("Segoe UI", 9.6f),
@@ -214,6 +229,7 @@ internal sealed class DashboardForm : Form
             BackColor = Color.Transparent
         };
 
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 230));
 
@@ -269,9 +285,9 @@ internal sealed class DashboardForm : Form
             Margin = Padding.Empty
         };
 
-        outer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 48));
-        outer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 4));
-        outer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 48));
+        outer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
+        outer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 64));
+        outer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
 
         outer.Controls.Add(
             MakeScreenCard(
@@ -316,7 +332,7 @@ internal sealed class DashboardForm : Form
             MakeScreenCard(
                 "2",
                 "EKRAN PRYWATNY",
-                "Tutaj działa prawdziwa mysz podczas prezentacji.",
+                "Tu pracujesz podczas prezentacji.",
                 _controlScreen),
             2,
             0);
@@ -355,13 +371,14 @@ internal sealed class DashboardForm : Form
         var layout = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 2,
-            RowCount = 1,
+            ColumnCount = 1,
+            RowCount = 2,
             BackColor = Color.Transparent
         };
 
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 330));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 54));
 
         var left = new TableLayoutPanel
         {
@@ -391,14 +408,14 @@ internal sealed class DashboardForm : Form
         left.Controls.Add(_routeLabel, 0, 1);
 
         _mainButton.Dock = DockStyle.Fill;
-        _mainButton.Margin = new Padding(14, 4, 0, 4);
+        _mainButton.Margin = new Padding(0, 8, 0, 0);
         _mainButton.CornerRadius = 14;
         _mainButton.BorderThickness = 0;
         _mainButton.Font = new Font("Segoe UI Semibold", 11f);
         _mainButton.Click += (_, _) => TogglePresentation();
 
         layout.Controls.Add(left, 0, 0);
-        layout.Controls.Add(_mainButton, 1, 0);
+        layout.Controls.Add(_mainButton, 0, 1);
 
         card.Controls.Add(layout);
         return card;
@@ -415,13 +432,14 @@ internal sealed class DashboardForm : Form
         var layout = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 2,
-            RowCount = 1,
+            ColumnCount = 1,
+            RowCount = 2,
             BackColor = Color.Transparent
         };
 
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 285));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50));
 
         var text = new TableLayoutPanel
         {
@@ -445,7 +463,7 @@ internal sealed class DashboardForm : Form
 
         text.Controls.Add(new Label
         {
-            Text = "Każdy monitor pamięta własne X/Y. Przełączenie zapisuje ekran opuszczany i przywraca pozycję ekranu docelowego.",
+            Text = "Przełącz ekran bez kończenia sesji. Program zapamiętuje pozycję kursora.",
             Dock = DockStyle.Fill,
             ForeColor = AppTheme.Muted,
             Font = new Font("Segoe UI", 8.9f),
@@ -454,13 +472,13 @@ internal sealed class DashboardForm : Form
         }, 0, 1);
 
         _controlToggleButton.Dock = DockStyle.Fill;
-        _controlToggleButton.Margin = new Padding(14, 4, 0, 4);
+        _controlToggleButton.Margin = new Padding(0, 8, 0, 0);
         _controlToggleButton.CornerRadius = 13;
         _controlToggleButton.Click += (_, _) =>
             Run(_controller.TogglePresentationControl);
 
         layout.Controls.Add(text, 0, 0);
-        layout.Controls.Add(_controlToggleButton, 1, 0);
+        layout.Controls.Add(_controlToggleButton, 0, 1);
 
         card.Controls.Add(layout);
         return card;
@@ -471,20 +489,22 @@ internal sealed class DashboardForm : Form
         var grid = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 5,
-            RowCount = 1,
+            ColumnCount = 3,
+            RowCount = 2,
             BackColor = AppTheme.Background,
             Margin = Padding.Empty
         };
 
-        for (int i = 0; i < 5; i++)
-            grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20f));
+        for (int i = 0; i < 3; i++)
+            grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.333f));
 
+        grid.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
+        grid.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
         grid.Controls.Add(MakeMetricCard("PRAWDZIWA MYSZ", _currentScreen), 0, 0);
         grid.Controls.Add(MakeMetricCard("STRZAŁKA", _parked), 1, 0);
         grid.Controls.Add(MakeMetricCard("BLOKADA", _locked), 2, 0);
-        grid.Controls.Add(MakeMetricCard("POZYCJA PREZENTACJI", _savedPresentationPoint), 3, 0);
-        grid.Controls.Add(MakeMetricCard("POZYCJA PRYWATNA", _savedControlPoint), 4, 0);
+        grid.Controls.Add(MakeMetricCard("POZYCJA PREZENTACJI", _savedPresentationPoint), 0, 1);
+        grid.Controls.Add(MakeMetricCard("POZYCJA PRYWATNA", _savedControlPoint), 1, 1);
 
         return grid;
     }
@@ -704,6 +724,8 @@ internal sealed class DashboardForm : Form
                 _mainButton.BorderColor = AppTheme.Accent;
             }
 
+            _mainButton.ForeColor = Color.FromArgb(15, 17, 22);
+            _controlToggleButton.ForeColor = _controller.IsControllingPresentation ? Color.FromArgb(15, 17, 22) : AppTheme.Text;
             _mainButton.Invalidate();
             _controlToggleButton.Invalidate();
         }

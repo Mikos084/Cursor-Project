@@ -95,6 +95,11 @@ internal sealed class RoundedPanel : Panel
 internal sealed class RoundedButton : Button
 {
     private bool _hovered;
+    private bool _pressed;
+    private float _hoverProgress;
+    private float _startProgress;
+    private long _animationStart;
+    private readonly System.Windows.Forms.Timer _animation = new() { Interval = 16 };
 
     public int CornerRadius { get; set; } = 12;
     public Color BaseColor { get; set; } = AppTheme.SurfaceAlt;
@@ -104,6 +109,16 @@ internal sealed class RoundedButton : Button
 
     public RoundedButton()
     {
+        SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+        _animation.Tick += (_, _) =>
+        {
+            float elapsed = Math.Clamp((Environment.TickCount64 - _animationStart) / 140f, 0, 1);
+            float eased = 1 - MathF.Pow(1 - elapsed, 3);
+            float target = _hovered ? 1 : 0;
+            _hoverProgress = _startProgress + (target - _startProgress) * eased;
+            Invalidate();
+            if (elapsed >= 1) _animation.Stop();
+        };
         FlatStyle = FlatStyle.Flat;
         FlatAppearance.BorderSize = 0;
         BackColor = Color.Transparent;
@@ -118,16 +133,81 @@ internal sealed class RoundedButton : Button
     protected override void OnMouseEnter(EventArgs e)
     {
         _hovered = true;
-        Invalidate();
+        AnimateHover();
         base.OnMouseEnter(e);
     }
 
     protected override void OnMouseLeave(EventArgs e)
     {
         _hovered = false;
-        Invalidate();
+        AnimateHover();
         base.OnMouseLeave(e);
     }
+
+    private void AnimateHover()
+    {
+        if (!Enabled || !Visible || !SystemInformation.IsMenuAnimationEnabled || SystemInformation.HighContrast)
+        {
+            _animation.Stop();
+            _hoverProgress = _hovered && Enabled ? 1 : 0;
+            Invalidate();
+            return;
+        }
+        _startProgress = _hoverProgress;
+        _animationStart = Environment.TickCount64;
+        _animation.Start();
+    }
+
+    protected override void OnMouseDown(MouseEventArgs e)
+    {
+        if (e.Button == MouseButtons.Left) _pressed = true;
+        Invalidate();
+        base.OnMouseDown(e);
+    }
+
+    protected override void OnMouseUp(MouseEventArgs e)
+    {
+        _pressed = false;
+        Invalidate();
+        base.OnMouseUp(e);
+    }
+
+    protected override void OnMouseCaptureChanged(EventArgs e)
+    {
+        _pressed = false;
+        Invalidate();
+        base.OnMouseCaptureChanged(e);
+    }
+
+    protected override void OnEnabledChanged(EventArgs e)
+    {
+        _pressed = false;
+        _hovered = false;
+        AnimateHover();
+        base.OnEnabledChanged(e);
+    }
+
+    protected override void OnVisibleChanged(EventArgs e)
+    {
+        if (!Visible)
+        {
+            _animation.Stop();
+            _hoverProgress = 0;
+            _hovered = _pressed = false;
+        }
+        base.OnVisibleChanged(e);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing) _animation.Dispose();
+        base.Dispose(disposing);
+    }
+
+    private static Color Blend(Color from, Color to, float amount)
+        => Color.FromArgb((int)(from.R + (to.R - from.R) * amount),
+            (int)(from.G + (to.G - from.G) * amount),
+            (int)(from.B + (to.B - from.B) * amount));
 
     protected override void OnPaint(PaintEventArgs pevent)
     {
@@ -137,8 +217,9 @@ internal sealed class RoundedButton : Button
         using var path = RoundedGeometry.Path(rect, CornerRadius);
 
         Color fillColor = Enabled
-            ? (_hovered ? HoverColor : BaseColor)
+            ? Blend(BaseColor, HoverColor, _hoverProgress)
             : Color.FromArgb(28, 31, 38);
+        if (Enabled && _pressed) fillColor = Blend(fillColor, Color.Black, 0.16f);
 
         using var fill = new SolidBrush(fillColor);
         pevent.Graphics.FillPath(fill, path);
@@ -153,7 +234,7 @@ internal sealed class RoundedButton : Button
             pevent.Graphics,
             Text,
             Font,
-            rect,
+            Rectangle.Inflate(rect, -8, -4),
             Enabled ? ForeColor : AppTheme.Muted,
             TextFormatFlags.HorizontalCenter |
             TextFormatFlags.VerticalCenter |

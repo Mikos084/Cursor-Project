@@ -93,3 +93,12 @@ instalatora, skrótów systemowych ani mechanizmu kursora. Reset skrótów
 klawiszowych zachowuje własną nazwę. Przy błędzie zapisu nazwa pozostaje bez zmian.
 
 Testy regresji: `dotnet run --project tests/BrandingChecks.csproj -c Release`.
+
+### 0.8.3 Beta 2
+
+Panel skupia się na wyborze monitorów i głównych działaniach. Szczegóły monitorów
+oraz skrótów można rozwinąć pod przyciskami. Przyciski mają pełną szerokość,
+wyraźniejszy kontrast i krótkie, płynne przejście koloru po najechaniu myszą.
+Animacje nie opóźniają działań, kończą się po 140 ms i zatrzymują się po ukryciu
+lub wyłączeniu przycisku. Ustawienie wyłączonych animacji menu w Windows oraz
+tryb wysokiego kontrastu wyłączają przejścia.
