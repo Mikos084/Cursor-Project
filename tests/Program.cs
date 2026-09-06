@@ -25,7 +25,7 @@ internal static class Checks
             Check(!AppBranding.TryValidate(bad, out _, out _), "Rejected unsafe name");
         Check(AppBranding.TryValidate("  Mój pokaz  ", out var valid, out _) && valid == "Mój pokaz", "Trim Unicode name");
         Check(AppBranding.Format(new string('a', 40)).Length <= 63, "Tray length limit");
-        Check(AppBranding.Format(valid).EndsWith(" — Multiple Pointers"), "Explicit app identity");
+        Check(AppBranding.Format(valid) == valid, "Custom name has no branding suffix");
         Check(AppBranding.Format(AppBranding.DefaultName) == AppBranding.DefaultName, "Default identity");
 
         string path = SettingsStore.SettingsPath;
@@ -72,6 +72,19 @@ internal static class Checks
         password.Text = "dupa";
         Click(unlock);
         Check(name.Enabled && apply.Enabled && password.Text == "", "Correct password unlocks");
+        if (Environment.GetCommandLineArgs().Contains("--render"))
+        {
+            form.Show();
+            Application.DoEvents();
+            using var preview = new Bitmap(form.Width, form.Height);
+            form.DrawToBitmap(preview, new Rectangle(Point.Empty, preview.Size));
+            preview.Save(Path.Combine(AppContext.BaseDirectory, "branding-preview.png"));
+            form.Hide();
+        }
+        var actionButtons = controls.OfType<Button>().ToArray();
+        Check(actionButtons.All(b => b.Height >= 44 && b.Width >= 125), "Readable button targets");
+        Check(actionButtons.Where(b => b.Parent == apply.Parent)
+            .All(b => b.Right <= b.Parent!.ClientSize.Width), "Action buttons fit their row");
         Click(apply);
         Check(saves == 1 && form.DialogResult != DialogResult.OK, "Failed save keeps editor open");
         Click(controls.Single(c => c.Text == "Nazwa domyślna"));
