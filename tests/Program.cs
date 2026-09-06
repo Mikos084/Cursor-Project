@@ -104,6 +104,40 @@ internal static class Checks
         Click(hotkeyControls.Single(c => c.Text == "Przywróć domyślne"));
         Click(hotkeyControls.Single(c => c.Text == "Zapisz zmiany"));
         Check(saved?.DisplayName == valid, "Reset shortcuts preserves branding");
+        using (var animated = new RoundedButton())
+        {
+            int clicks = 0;
+            animated.Click += (_, _) => clicks++;
+            Click(animated);
+            Check(clicks == 1, "Animated button invokes action exactly once");
+            typeof(RoundedButton).GetMethod("OnMouseEnter", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .Invoke(animated, [EventArgs.Empty]);
+            animated.Enabled = false;
+            var timer = (System.Windows.Forms.Timer)typeof(RoundedButton)
+                .GetField("_animation", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(animated)!;
+            Check(!timer.Enabled, "Disabled button stops animation");
+        }
+        if (Environment.GetCommandLineArgs().Contains("--render"))
+        {
+            // Read monitor state only; never start a pointer session or invoke its actions.
+            var controller = new PointerController();
+            using var dashboard = new DashboardForm(controller, SystemIcons.Application,
+                () => "Ctrl+Shift+F7  — przełącz ekran\nCtrl+Shift+F9  — start / stop\nCtrl+Shift+F10 — reset", _ => "Ctrl+Shift+F9",
+                () => { }, () => { }, () => { });
+            foreach (int width in new[] { 1120, 760 })
+            {
+                dashboard.Size = new Size(width, 920);
+                dashboard.Show();
+                Application.DoEvents();
+                Check(Descendants(dashboard).OfType<Button>().Where(b => b.Visible)
+                    .All(b => b.Top >= 0 && b.Left >= 0 && b.Bottom <= b.Parent!.ClientSize.Height &&
+                              b.Right <= b.Parent!.ClientSize.Width), $"Buttons fit dashboard at width {width}");
+                using var shot = new Bitmap(dashboard.Width, dashboard.Height);
+                dashboard.DrawToBitmap(shot, new Rectangle(Point.Empty, shot.Size));
+                shot.Save(Path.Combine(AppContext.BaseDirectory, $"dashboard-{width}.png"));
+            }
+            dashboard.Hide();
+        }
         Console.WriteLine($"Passed {_count} branding checks.");
     }
 }

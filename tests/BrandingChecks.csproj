@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../DashboardForm.cs;../PointerController.cs;../FakeCursorForm.cs;../MonitorService.cs" LinkBase="App" />
     <Compile Include="../AppBranding.cs;../AppSettings.cs;../SettingsStore.cs;../NativeMethods.cs;../UiKit.cs;../BrandingForm.cs;../InstructionForm.cs;../HotkeySettingsForm.cs" LinkBase="App" />
   </ItemGroup>
 </Project>
